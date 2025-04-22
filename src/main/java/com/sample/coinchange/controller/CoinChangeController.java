@@ -26,15 +26,7 @@ public class CoinChangeController {
                 produces = MediaType.APPLICATION_JSON_VALUE)
     public Map<CoinType, Integer> calculateChange(@PathVariable Integer bill) {
         log.info("Calculating change for {}", bill);
-        try {
-            return changeStrategyService.calculateChange(bill);
-        } catch (IllegalArgumentException exception) {
-            log.error("Invalid bill amount: {}", bill, exception);
-            return new HashMap<>();
-        } catch (IllegalStateException exception) {
-            log.error("Insufficient coins for bill: {}", bill, exception);
-            return new HashMap<>();
-        }
+        return changeStrategyService.calculateChange(bill);
     }
 
     @GetMapping(value = "/api/coins",
