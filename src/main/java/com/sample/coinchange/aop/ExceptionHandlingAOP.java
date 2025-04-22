@@ -18,7 +18,7 @@ public class ExceptionHandlingAOP {
             return ResponseEntity.badRequest().body(ex.getMessage());
         } else if (ex instanceof IllegalStateException) {
             log.error("IllegalStateException caught: {}", ex.getMessage());
-            return ResponseEntity.status(500).body("Internal server error: " + ex.getMessage());
+            return ResponseEntity.status(500).body(ex.getMessage());
         } else {
             log.error("Unexpected exception caught: {}", ex.getMessage());
             return ResponseEntity.status(500).body("An unexpected error occurred.");
