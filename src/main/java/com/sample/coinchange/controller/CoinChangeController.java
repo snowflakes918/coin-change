@@ -1,26 +1,46 @@
 package com.sample.coinchange.controller;
 
 import com.sample.coinchange.dto.CoinType;
+import com.sample.coinchange.service.ChangeStrategyService;
+import com.sample.coinchange.service.CoinManagerService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
 @Slf4j
 public class CoinChangeController {
 
+    @Autowired
+    private ChangeStrategyService changeStrategyService;
+    @Autowired
+    private CoinManagerService coinManagerService;
+
     @GetMapping(value = "/api/change/{bill}",
                 produces = MediaType.APPLICATION_JSON_VALUE)
     public Map<CoinType, Integer> calculateChange(@PathVariable Integer bill) {
         log.info("Calculating change for {}", bill);
-        return Map.of(
-                CoinType.QUARTER, 2,
-                CoinType.DIME, 5,
-                CoinType.NICKEL, 20
-        );
+        try {
+            return changeStrategyService.calculateChange(bill);
+        } catch (IllegalArgumentException exception) {
+            log.error("Invalid bill amount: {}", bill, exception);
+            return new HashMap<>();
+        } catch (IllegalStateException exception) {
+            log.error("Insufficient coins for bill: {}", bill, exception);
+            return new HashMap<>();
+        }
+    }
+
+    @GetMapping(value = "/api/coins",
+                produces = MediaType.APPLICATION_JSON_VALUE)
+    public Map<CoinType, Integer> getAvailableCoins() {
+        log.info("Fetching available coins");
+        return coinManagerService.getAvailableCoins();
     }
 }
