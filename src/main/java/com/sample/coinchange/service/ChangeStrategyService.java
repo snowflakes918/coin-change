@@ -26,6 +26,12 @@ public class ChangeStrategyService {
         BigDecimal remainingBill = BigDecimal.valueOf(bill);
         Map<CoinType, Integer> change = new EnumMap<>(CoinType.class);
 
+        // Get the maximum amount that can be returned
+        int maxAmount = coinManagerService.getMaxAmount();
+        if (bill > maxAmount) {
+            throw new IllegalStateException("Insufficient coins to provide change.");
+        }
+
         // Sort coin types by their value in descending order
         CoinType[] coinTypes = CoinType.values();
         Arrays.sort(coinTypes, (CoinType a, CoinType b) -> b.getAmount().compareTo(a.getAmount()));

@@ -4,6 +4,7 @@ import com.sample.coinchange.dto.CoinType;
 import lombok.Getter;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.EnumMap;
 import java.util.Map;
 
@@ -42,5 +43,15 @@ public class CoinManagerService {
             int countToDeduct = entry.getValue();
             coinInventory.put(coinType, coinInventory.get(coinType) - countToDeduct);
         }
+    }
+
+    public int getMaxAmount() {
+        return coinInventory.entrySet().stream()
+                .mapToInt(entry ->
+                        entry.getKey().getAmount()
+                                .multiply(BigDecimal.valueOf(entry.getValue()))
+                                .intValue()
+                )
+                .sum();
     }
 }
