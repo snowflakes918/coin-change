@@ -2,6 +2,7 @@ package com.sample.coinchange.service;
 
 import com.sample.coinchange.dto.CoinType;
 import lombok.Getter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -14,11 +15,13 @@ public class CoinManagerService {
 
     private final Map<CoinType, Integer> coinInventory;
 
-    public CoinManagerService() {
+
+
+    public CoinManagerService(@Value("${coin.quantity}") int coinQuantity) {
         // Initialize with 100 of each coins
         coinInventory = new EnumMap<>(CoinType.class);
         for (CoinType coinType : CoinType.values()) {
-            coinInventory.put(coinType, 100);
+            coinInventory.put(coinType, coinQuantity);
         }
     }
 

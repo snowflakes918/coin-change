@@ -24,7 +24,7 @@ class ExceptionHandlingAOPTest {
     void handleControllerExceptionsTest_IllegalArgumentException() {
         IllegalArgumentException exception = new IllegalArgumentException("test illegal argument exception");
 
-        ResponseEntity<Object> response = exceptionHandlingAOP.handleControllerExceptions(exception);
+        ResponseEntity<String> response = exceptionHandlingAOP.handleIllegalArgumentException(exception);
 
         // Assert
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
@@ -37,7 +37,7 @@ class ExceptionHandlingAOPTest {
         IllegalStateException exception = new IllegalStateException("test illegal state exception");
 
         // Act
-        ResponseEntity<Object> response = exceptionHandlingAOP.handleControllerExceptions(exception);
+        ResponseEntity<String> response = exceptionHandlingAOP.handleIllegalStateException(exception);
 
         // Assert
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
@@ -47,7 +47,7 @@ class ExceptionHandlingAOPTest {
     @Test
     void handleControllerExceptionsTest_OtherException() {
         Exception exception = new Exception("test other exception");
-        ResponseEntity<Object> response = exceptionHandlingAOP.handleControllerExceptions(exception);
+        ResponseEntity<String> response = exceptionHandlingAOP.handleOtherException(exception);
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         assertEquals("An unexpected error occurred.", response.getBody());

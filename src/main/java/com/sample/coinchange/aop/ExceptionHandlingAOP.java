@@ -1,27 +1,34 @@
 package com.sample.coinchange.aop;
 
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.lang.annotation.AfterThrowing;
-import org.aspectj.lang.annotation.Aspect;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 
-@Aspect
-@Component
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+
 @Slf4j
+@ControllerAdvice
 public class ExceptionHandlingAOP {
 
-    @AfterThrowing(pointcut = "execution(* com.sample.coinchange.controller..*(..))", throwing = "ex")
-    public ResponseEntity<Object> handleControllerExceptions(Exception ex) {
-        if (ex instanceof IllegalArgumentException) {
-            log.error("IllegalArgumentException caught: {}", ex.getMessage());
-            return ResponseEntity.badRequest().body(ex.getMessage());
-        } else if (ex instanceof IllegalStateException) {
-            log.error("IllegalStateException caught: {}", ex.getMessage());
-            return ResponseEntity.status(500).body(ex.getMessage());
-        } else {
-            log.error("Unexpected exception caught: {}", ex.getMessage());
-            return ResponseEntity.status(500).body("An unexpected error occurred.");
-        }
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException ex) {
+        log.error("IllegalArgumentException caught: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ex.getMessage());
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<String> handleIllegalStateException(IllegalStateException ex) {
+        log.error("IllegalStateException caught: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ex.getMessage());
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> handleOtherException(Exception ex) {
+        log.error("Unexpected exception caught: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("An unexpected error occurred.");
     }
 }
