@@ -25,14 +25,12 @@ public class CoinChangeController {
     @GetMapping(value = "/api/change/{bill}",
                 produces = MediaType.APPLICATION_JSON_VALUE)
     public Map<CoinType, Integer> calculateChange(@PathVariable Integer bill) {
-        log.info("Calculating change for {}", bill);
         return changeStrategyService.calculateChange(bill);
     }
 
     @GetMapping(value = "/api/coins",
                 produces = MediaType.APPLICATION_JSON_VALUE)
     public Map<CoinType, Integer> getAvailableCoins() {
-        log.info("Fetching available coins");
         return coinManagerService.getAvailableCoins();
     }
 }

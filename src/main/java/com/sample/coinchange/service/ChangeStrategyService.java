@@ -18,6 +18,7 @@ public class ChangeStrategyService {
         this.coinManagerService = coinManagerService;
     }
 
+
     public Map<CoinType, Integer> calculateChange(int bill) {
         // Validate the bill amount
         if (!isValidBill(bill)) {

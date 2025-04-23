@@ -3,6 +3,7 @@ package com.sample.coinchange.service;
 import com.sample.coinchange.dto.CoinType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Map;
 
@@ -14,7 +15,7 @@ class CoinManagerServiceTest {
 
     @BeforeEach
     void setUp() {
-        coinManagerService = new CoinManagerService();
+        coinManagerService = new CoinManagerService(100);
     }
 
     @Test
