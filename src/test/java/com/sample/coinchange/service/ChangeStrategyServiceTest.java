@@ -9,6 +9,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -26,7 +31,6 @@ class ChangeStrategyServiceTest {
     @Test
     void calculateChangeTest_with_one_cointype() {
         // Scenario 1: Change with 1 type of coin
-        when(coinManagerService.getMaxAmount()).thenReturn(41);
         when(coinManagerService.hasSufficientCoins(any())).thenReturn(true);
 
 
@@ -46,8 +50,43 @@ class ChangeStrategyServiceTest {
 
     @Test
     void calculateChangeTest_Insufficient_Coins() {
-        when(coinManagerService.getMaxAmount()).thenReturn(5);
-
         assertThrows(IllegalStateException.class, () -> changeStrategyService.calculateChange(10));
+    }
+
+    @Test
+    void calculateChangeTest_multiThreaded() throws InterruptedException {
+        // Scenario: Multi-threaded access
+        int numThreads = 10;
+        CountDownLatch latch = new CountDownLatch(numThreads);
+        ExecutorService executorService = Executors.newFixedThreadPool(numThreads);
+        AtomicInteger successCount = new AtomicInteger(0);
+        AtomicInteger failureCount = new AtomicInteger(0);
+
+        when(coinManagerService.hasSufficientCoins(any())).thenReturn(true);
+        doNothing().when(coinManagerService).deductCoins(any());
+
+        // Start multiple threads to simulate concurrent access, check how many thread could fail
+        for (int i = 0; i < numThreads; i++) {
+            executorService.submit(() -> {
+                try {
+                    Map<CoinType, Integer> result = changeStrategyService.calculateChange(5);
+                    if (result != null && !result.isEmpty()) {
+                        successCount.incrementAndGet();
+                    }
+                } catch (Exception e) {
+                    failureCount.incrementAndGet();
+                } finally {
+                    latch.countDown();
+                }
+            });
+        }
+
+        boolean completed = latch.await(5, TimeUnit.SECONDS);
+        executorService.shutdown();
+
+        assertTrue(completed);
+        assertEquals(numThreads, successCount.get());
+        assertEquals(0, failureCount.get());
+        verify(coinManagerService, times(numThreads)).deductCoins(any());
     }
 }

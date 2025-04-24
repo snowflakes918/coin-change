@@ -1,34 +1,30 @@
 package com.sample.coinchange.aop;
 
+import com.sample.coinchange.dto.ResponseType;
+import com.sample.coinchange.dto.ResultEnum;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-@Slf4j
-@ControllerAdvice
+@RestControllerAdvice
 public class ExceptionHandlingAOP {
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException ex) {
-        log.error("IllegalArgumentException caught: {}", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ex.getMessage());
+    public <T> ResponseType<T> handleIllegalArgumentException(IllegalArgumentException ex) {
+        return ResponseType.error(ResultEnum.BAD_INPUT, ex.getMessage());
     }
 
     @ExceptionHandler(IllegalStateException.class)
-    public ResponseEntity<String> handleIllegalStateException(IllegalStateException ex) {
-        log.error("IllegalStateException caught: {}", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ex.getMessage());
+    public <T> ResponseType<T> handleIllegalStateException(IllegalStateException ex) {
+        return ResponseType.error(ResultEnum.FAILED, ex.getMessage());
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> handleOtherException(Exception ex) {
-        log.error("Unexpected exception caught: {}", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("An unexpected error occurred.");
+    public <T> ResponseType<T> handleOtherException(Exception ex) {
+        return ResponseType.error(ResultEnum.ERROR, ex.getMessage());
     }
 }

@@ -1,9 +1,10 @@
 package com.sample.coinchange.aop;
 
+import com.sample.coinchange.dto.ResponseType;
+import com.sample.coinchange.dto.ResultEnum;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,11 +25,11 @@ class ExceptionHandlingAOPTest {
     void handleControllerExceptionsTest_IllegalArgumentException() {
         IllegalArgumentException exception = new IllegalArgumentException("test illegal argument exception");
 
-        ResponseEntity<String> response = exceptionHandlingAOP.handleIllegalArgumentException(exception);
+        ResponseType<Object> response = exceptionHandlingAOP.handleIllegalArgumentException(exception);
 
         // Assert
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertEquals("test illegal argument exception", response.getBody());
+        assertEquals(ResultEnum.BAD_INPUT.getCode(), response.getCode());
+        assertEquals("test illegal argument exception", response.getMessage());
     }
 
     @Test
@@ -37,20 +38,20 @@ class ExceptionHandlingAOPTest {
         IllegalStateException exception = new IllegalStateException("test illegal state exception");
 
         // Act
-        ResponseEntity<String> response = exceptionHandlingAOP.handleIllegalStateException(exception);
+        ResponseType<Object> response = exceptionHandlingAOP.handleIllegalStateException(exception);
 
         // Assert
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-        assertEquals("test illegal state exception", response.getBody());
+        assertEquals(ResultEnum.FAILED.getCode(), response.getCode());
+        assertEquals("test illegal state exception", response.getMessage());
     }
 
     @Test
     void handleControllerExceptionsTest_OtherException() {
         Exception exception = new Exception("test other exception");
-        ResponseEntity<String> response = exceptionHandlingAOP.handleOtherException(exception);
+        ResponseType<Object> response = exceptionHandlingAOP.handleOtherException(exception);
 
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-        assertEquals("An unexpected error occurred.", response.getBody());
+        assertEquals(ResultEnum.ERROR.getCode(), response.getCode());
+        assertEquals("test other exception", response.getMessage());
     }
 
 

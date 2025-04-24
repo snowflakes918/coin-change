@@ -1,6 +1,8 @@
 package com.sample.coinchange.controller;
 
 import com.sample.coinchange.dto.CoinType;
+import com.sample.coinchange.dto.ResponseType;
+import com.sample.coinchange.dto.ResultEnum;
 import com.sample.coinchange.service.ChangeStrategyService;
 import com.sample.coinchange.service.CoinManagerService;
 import lombok.extern.slf4j.Slf4j;
@@ -13,8 +15,9 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.sample.coinchange.dto.ResponseType.success;
+
 @RestController
-@Slf4j
 public class CoinChangeController {
 
     @Autowired
@@ -23,14 +26,16 @@ public class CoinChangeController {
     private CoinManagerService coinManagerService;
 
     @GetMapping(value = "/api/change/{bill}",
-                produces = MediaType.APPLICATION_JSON_VALUE)
-    public Map<CoinType, Integer> calculateChange(@PathVariable Integer bill) {
-        return changeStrategyService.calculateChange(bill);
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseType<Map<CoinType, Integer>> calculateChange(@PathVariable Integer bill) {
+        Map<CoinType, Integer> changeMap = changeStrategyService.calculateChange(bill);
+        return ResponseType.success(changeMap);
     }
 
     @GetMapping(value = "/api/coins",
-                produces = MediaType.APPLICATION_JSON_VALUE)
-    public Map<CoinType, Integer> getAvailableCoins() {
-        return coinManagerService.getAvailableCoins();
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseType<Map<CoinType, Integer>> getAvailableCoins() {
+        Map<CoinType, Integer> availableCoins = coinManagerService.getAvailableCoins();
+        return ResponseType.success(availableCoins);
     }
 }

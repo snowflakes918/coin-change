@@ -51,14 +51,7 @@ class CoinManagerServiceTest {
         coinManagerService.deductCoins(coinsToDeduct);
 
         // Assert
-        assertEquals(90, coinManagerService.getCoinInventory().get(CoinType.DIME));
+        assertEquals(90, coinManagerService.getAvailableCoins().get(CoinType.DIME));
     }
 
-    @Test
-    void getMaxAmountTest() {
-        int maxAmount = coinManagerService.getMaxAmount();
-
-        // Assert
-        assertEquals(41, maxAmount);
-    }
 }

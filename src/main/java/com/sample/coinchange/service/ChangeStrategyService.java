@@ -19,19 +19,14 @@ public class ChangeStrategyService {
     }
 
 
-    public Map<CoinType, Integer> calculateChange(int bill) {
+    public synchronized Map<CoinType, Integer> calculateChange(int bill) {
         // Validate the bill amount
         if (!isValidBill(bill)) {
             throw new IllegalArgumentException("Invalid bill amount: " + bill);
         }
-        BigDecimal remainingBill = BigDecimal.valueOf(bill);
-        Map<CoinType, Integer> change = new EnumMap<>(CoinType.class);
 
-        // Get the maximum amount that can be returned
-        int maxAmount = coinManagerService.getMaxAmount();
-        if (bill > maxAmount) {
-            throw new IllegalStateException("Insufficient coins to provide change.");
-        }
+        BigDecimal remainingBill = BigDecimal.valueOf(bill);
+        Map<CoinType, Integer> tempDeduction = new EnumMap<>(CoinType.class);
 
         // Sort coin types by their value in descending order
         CoinType[] coinTypes = CoinType.values();
@@ -43,15 +38,15 @@ public class ChangeStrategyService {
             BigDecimal coinValue = coinType.getAmount();
 
             while (remainingBill.compareTo(coinValue) >= 0 &&
-                   coinManagerService.hasSufficientCoins(Map.of(coinType, 1))) {
+                    coinManagerService.hasSufficientCoins(Map.of(coinType, coinUsed+1))) {
                 remainingBill = remainingBill.subtract(coinValue);
                 coinUsed++;
-                coinManagerService.deductCoins(Map.of(coinType, 1));
             }
 
             if (coinUsed > 0) {
-                change.put(coinType, coinUsed);
+                tempDeduction.put(coinType, coinUsed);
             }
+
         }
 
         // There aren't enough coins
@@ -59,7 +54,8 @@ public class ChangeStrategyService {
             throw new IllegalStateException("Insufficient coins to provide change.");
         }
 
-        return change;
+        coinManagerService.deductCoins(tempDeduction);
+        return tempDeduction;
     }
 
     private boolean isValidBill(int bill) {
